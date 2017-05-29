@@ -31,32 +31,38 @@ class MYDB {
 	
 	/**
 	 * @var string The last executed query
+	 * @since 1.0
 	 */
 	public $last_query;
 	
 	/**
 	 * @var string Database server
+	 * @since 1.0
 	 */
 	protected $server = '';
 	
 	/**
 	 * @var string Database user
+	 * @since 1.0
 	 */
 	protected $user = '';
 	
 	/**
 	 * @var string Database password
+	 * @since 1.0
 	 */
 	protected $password = '';
 	
 	/**
 	 * @var string Database name
+	 * @since 1.0
 	 */
 	protected $database = '';
 	
 	/**
 	 * @var mysqli Database connection class object
 	 * @see http://php.net/manual/en/class.mysqli.php
+	 * @since 1.0
 	 */
 	protected $db = null;
 	
@@ -67,6 +73,7 @@ class MYDB {
 	 * @param $user string
 	 * @param $password string
 	 * @param $database string
+	 * @since 1.0
 	 */
 	public function __construct($server = null, $user = null, $password = null, $database = null) {
 		if($server !== null) {
@@ -92,6 +99,7 @@ class MYDB {
 	 * @param string $query
 	 * @return mixed Returns `false` on failure. For successful SELECT, SHOW, DESCRIBE or EXPLAIN queries will return a mysqli_result object. For other successful queries will return `true`.
 	 * @see http://php.net/manual/en/mysqli.query.php
+	 * @since 1.0
 	 */
 	public function query($query) {
 		$this->last_query = $query;
@@ -104,6 +112,7 @@ class MYDB {
 	 * @param $table Table name
 	 * @param $data [field_name => field_value, ...]
 	 * @return number The last insert id on success, 0 on failure
+	 * @since 1.0
 	 */
 	public function insert($table, $data) {
 		$this->query('INSERT INTO `'.$table.'` ('.join(', ', array_map(function($key){return '`'.$key.'`';}, array_keys($data))).') VALUES ('.join(', ', array_map(function($value){return '\''.$value.'\'';}, $data)).')');
@@ -117,6 +126,7 @@ class MYDB {
 	 * @param $data
 	 * @param $where
 	 * @return `true` on success, `false` on failure
+	 * @since 1.0
 	 */
 	public function update($table, $data, $where = null) {
 		return $this->query('UPDATE `'.$table.'` SET '.join(', ', array_map(function($key, $value){return '`'.$key.'`=\''.$value.'\'';}, array_keys($data), $data)).' '.($where?' WHERE '.join(' AND ', array_map(function($key, $value){return '`'.$key.'`=\''.$value.'\'';}, array_keys($where), $where)):''));
@@ -128,7 +138,8 @@ class MYDB {
 	 * @param $table
 	 * @param $data
 	 * @param $where
-	 * @return mixed 
+	 * @return mixed
+	 * @since 1.0
 	 */
 	public function upsert($table, $data, $where) {
 		$this->query('INSERT INTO `'.$table.'` ('.join(', ', array_map(function($key){return '`'.$key.'`';}, array_merge(array_keys($data), array_keys($where)))).') VALUES ('.join(', ', array_map(function($value){return '\''.$value.'\'';}, array_merge($data, $where))).') ON DUPLICATE KEY '.('UPDATE '.join(',', array_map(function($key, $value){return '`'.$key.'`=\''.$value.'\'';}, array_keys($data), $data))));
@@ -144,6 +155,7 @@ class MYDB {
 	 * @param $orderby array [field_name => 'ASC|DESC', ...]
 	 * @param $limit mixed [0-9]+|[0-9]+,[0-9]
 	 * @return mixed For successful queries return a `mysqli_result` object. Returns `false` on failure.
+	 * @since 1.0
 	 */
 	public function select($table, $fields, $where = null, $orderby = null, $limit = null) {
 		return $this->db->query('SELECT '.($fields=='*'?'*':join(', ', array_map(function($key){return '`'.$key.'`';}, $fields))).' FROM `'.$table.'`'.($where!==null?' WHERE '.join(' AND ', array_map(function($key, $value){return '`'.$key.'`=\''.$value.'\'';}, array_keys($where), $where)):'').($orderby!==null?' ORDER BY '.join(', ', array_map(function($key, $value){return '`'.$key.'` '.$value;}, array_keys($orderby), $orderby)):'').($limit!==null?' LIMIT '.$limit:''));
@@ -155,6 +167,7 @@ class MYDB {
 	 * @param $table
 	 * @param $where
 	 * @return `true` on success, `false` on failure
+	 * @since 1.0
 	 */
 	public function delete($table, $where = null) {
 		return $this->db->query('DELETE FROM `'.$table.'`'.($where!==null?' WHERE '.join(' AND ', array_map(function($key, $value){return '`'.$key.'`=\''.$value.'\'';}, array_keys($where), $where)):''));
