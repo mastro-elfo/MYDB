@@ -26,6 +26,13 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 /**
  * Utility tool to perform queries to mysql db in PHP with `mysqli`.
+ * https://github.com/mastro-elfo/MYDB
+ * 
+ *
+ * @version 1.1
+ * @license https://github.com/mastro-elfo/MYDB/blob/master/LICENSE
+ * @author mastro-elfo
+ * @copyright Copyright (c) 2017 mastro-elfo
  */
 class MYDB {
 	
@@ -94,7 +101,7 @@ class MYDB {
 	}
 	
 	/**
-	 * Sends a generic query. Also saves the query string to `$this->last_query`
+	 * Sends a generic query. Also saves the query string to `$this->last_query`.
 	 *
 	 * @param string $query
 	 * @return mixed Returns `false` on failure. For successful SELECT, SHOW, DESCRIBE or EXPLAIN queries will return a mysqli_result object. For other successful queries will return `true`.
@@ -107,7 +114,7 @@ class MYDB {
 	}
 	
 	/**
-	 * Creates and sends an 'INSERT INTO' query
+	 * Creates and sends an 'INSERT INTO' query.
 	 *
 	 * @param $table Table name
 	 * @param $data [field_name => field_value, ...]
@@ -120,7 +127,7 @@ class MYDB {
 	}
 	
 	/**
-	 * Creates and sends an 'UPDATE' query
+	 * Creates and sends an 'UPDATE' query.
 	 *
 	 * @param $table
 	 * @param $data
@@ -147,7 +154,7 @@ class MYDB {
 	}
 	
 	/**
-	 * Create and sends a 'SELECT' query
+	 * Create and sends a 'SELECT' query.
 	 * 
 	 * @param $table string Table name
 	 * @param $fields mixed '*'|[field_name, ...]
@@ -158,7 +165,7 @@ class MYDB {
 	 * @since 1.0
 	 */
 	public function select($table, $fields, $where = null, $orderby = null, $limit = null) {
-		return $this->db->query('SELECT '.($fields=='*'?'*':join(', ', array_map(function($key){return '`'.$key.'`';}, $fields))).' FROM `'.$table.'`'.($where!==null?' WHERE '.join(' AND ', array_map(function($key, $value){return '`'.$key.'`=\''.$value.'\'';}, array_keys($where), $where)):'').($orderby!==null?' ORDER BY '.join(', ', array_map(function($key, $value){return '`'.$key.'` '.$value;}, array_keys($orderby), $orderby)):'').($limit!==null?' LIMIT '.$limit:''));
+		return $this->query('SELECT '.($fields=='*'?'*':join(', ', array_map(function($key){return '`'.$key.'`';}, $fields))).' FROM `'.$table.'`'.($where!==null?' WHERE '.join(' AND ', array_map(function($key, $value){return '`'.$key.'`=\''.$value.'\'';}, array_keys($where), $where)):'').($orderby!==null?' ORDER BY '.join(', ', array_map(function($key, $value){return '`'.$key.'` '.$value;}, array_keys($orderby), $orderby)):'').($limit!==null?' LIMIT '.$limit:''));
 	}
 	
 	/**
@@ -170,7 +177,7 @@ class MYDB {
 	 * @since 1.0
 	 */
 	public function delete($table, $where = null) {
-		return $this->db->query('DELETE FROM `'.$table.'`'.($where!==null?' WHERE '.join(' AND ', array_map(function($key, $value){return '`'.$key.'`=\''.$value.'\'';}, array_keys($where), $where)):''));
+		return $this->query('DELETE FROM `'.$table.'`'.($where!==null?' WHERE '.join(' AND ', array_map(function($key, $value){return '`'.$key.'`=\''.$value.'\'';}, array_keys($where), $where)):''));
 	}
 }
 
