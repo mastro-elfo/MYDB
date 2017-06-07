@@ -25,14 +25,21 @@ OTHER DEALINGS IN THE SOFTWARE.
 */
 
 /**
- * Utility tool to perform queries to mysql db in PHP with `mysqli`.
- * https://github.com/mastro-elfo/MYDB
+ * Utility tool to perform queries to MySQL database in PHP with `mysqli`.
+ * See also:
+ * * [Project on Github](https://github.com/mastro-elfo/MYDB)
+ * * [PHP mysqli class](http://php.net/manual/en/class.mysqli.php)
+ * * [MySQL](https://dev.mysql.com/)
  * 
- *
- * @version 1.1
+ * @version 1.2.0
  * @license https://github.com/mastro-elfo/MYDB/blob/master/LICENSE
  * @author mastro-elfo
  * @copyright Copyright (c) 2017 mastro-elfo
+ * @todo Use `affected_rows` for `::replace` query?
+ * @todo Maybe add `affected_rows` as public attribute?
+ * @todo Maybe add `insert_id` as public attribute?
+ * @todo Adjust return value in `::select`?
+ * @todo Adjust return value in `::upsert`?
  */
 class MYDB {
 	
@@ -103,7 +110,7 @@ class MYDB {
 	/**
 	 * Sends a generic query. Also saves the query string to `$this->last_query`.
 	 *
-	 * @param string $query
+	 * @param string $query The query string
 	 * @return mixed Returns `false` on failure. For successful SELECT, SHOW, DESCRIBE or EXPLAIN queries will return a mysqli_result object. For other successful queries will return `true`.
 	 * @see http://php.net/manual/en/mysqli.query.php
 	 * @since 1.0
@@ -116,8 +123,8 @@ class MYDB {
 	/**
 	 * Creates and sends an 'INSERT INTO' query.
 	 *
-	 * @param $table Table name
-	 * @param $data [field_name => field_value, ...]
+	 * @param string $table Table name
+	 * @param array $data [field_name => field_value, ...]
 	 * @return number The last insert id on success, 0 on failure
 	 * @since 1.0
 	 */
@@ -127,24 +134,38 @@ class MYDB {
 	}
 	
 	/**
+	 * Creates and sends a 'Replace' query.
+	 *
+	 * @param string $table Table name
+	 * @param array $data [field_name => field_value, ...]
+	 * @return number The last insert id on success, 0 on failure
+	 * @since 1.2
+	 */
+	public function replace($table, $data){
+		$this->query('REPLACE INTO `'.$table.'` ('.join(', ', array_map(function($key){return '`'.$key.'`';}, array_keys($data))).') VALUES ('.join(', ', array_map(function($value){return '\''.$value.'\'';}, $data)).')');
+		return $this->db->insert_id;
+	}
+	
+	/**
 	 * Creates and sends an 'UPDATE' query.
 	 *
-	 * @param $table
-	 * @param $data
-	 * @param $where
-	 * @return `true` on success, `false` on failure
+	 * @param string $table Table name
+	 * @param array $data [field_name => field_value, ...]
+	 * @param array $where WHERE clause, joined with AND
+	 * @return number of affected rows
 	 * @since 1.0
 	 */
 	public function update($table, $data, $where = null) {
-		return $this->query('UPDATE `'.$table.'` SET '.join(', ', array_map(function($key, $value){return '`'.$key.'`=\''.$value.'\'';}, array_keys($data), $data)).' '.($where?' WHERE '.join(' AND ', array_map(function($key, $value){return '`'.$key.'`=\''.$value.'\'';}, array_keys($where), $where)):''));
+		$this->query('UPDATE `'.$table.'` SET '.join(', ', array_map(function($key, $value){return '`'.$key.'`=\''.$value.'\'';}, array_keys($data), $data)).' '.($where?' WHERE '.join(' AND ', array_map(function($key, $value){return '`'.$key.'`=\''.$value.'\'';}, array_keys($where), $where)):''));
+		return $this->db->affected_rows;
 	}
 	
 	/**
 	 * Create and sends an 'INSERT INTO' query. On duplicate key sends an 'UPDATE' query.
 	 *
-	 * @param $table
-	 * @param $data
-	 * @param $where
+	 * @param string $table Table name
+	 * @param array $data [field_name => field_value, ...]
+	 * @param array $where WHERE clause, joined with AND
 	 * @return mixed
 	 * @since 1.0
 	 */
@@ -156,11 +177,11 @@ class MYDB {
 	/**
 	 * Create and sends a 'SELECT' query.
 	 * 
-	 * @param $table string Table name
-	 * @param $fields mixed '*'|[field_name, ...]
-	 * @param $where array [field_name => field_value, ...]
-	 * @param $orderby array [field_name => 'ASC|DESC', ...]
-	 * @param $limit mixed [0-9]+|[0-9]+,[0-9]
+	 * @param string $table Table name
+	 * @param mixed $fields '*'|[field_name, ...]
+	 * @param array $where [field_name => field_value, ...]
+	 * @param array $orderby [field_name => 'ASC|DESC', ...]
+	 * @param mixed $limit [0-9]+|[0-9]+,[0-9]
 	 * @return mixed For successful queries return a `mysqli_result` object. Returns `false` on failure.
 	 * @since 1.0
 	 */
@@ -171,13 +192,14 @@ class MYDB {
 	/**
 	 * Creates and sends a 'DELETE' query.
 	 *
-	 * @param $table
-	 * @param $where
-	 * @return `true` on success, `false` on failure
+	 * @param string $table Table name
+	 * @param array $where [field_name => field_value, ...]
+	 * @return number of affected rows
 	 * @since 1.0
 	 */
 	public function delete($table, $where = null) {
-		return $this->query('DELETE FROM `'.$table.'`'.($where!==null?' WHERE '.join(' AND ', array_map(function($key, $value){return '`'.$key.'`=\''.$value.'\'';}, array_keys($where), $where)):''));
+		$this->query('DELETE FROM `'.$table.'`'.($where!==null?' WHERE '.join(' AND ', array_map(function($key, $value){return '`'.$key.'`=\''.$value.'\'';}, array_keys($where), $where)):''));
+		return $this->db->affected_rows;
 	}
 }
 
