@@ -1,6 +1,5 @@
 # MYDB
-
-Comments in code
+See also comments in code.
 
 ## MYDB::last_query
 The last executed query.
@@ -33,6 +32,16 @@ $db->insert('Table', [
 ]);
 ```
 
+## MYDB::replace
+Creates and sends a 'REPLACE INTO' query
+
+### Params
+* string `$table` Table name
+* array `$data` Associative array. Keys are field names, Values are field values.
+
+### Return
+The last insert id on success, 0 on failure
+
 ## MYDB::update
 Creates and sends an 'UPDATE' query.
 
@@ -45,12 +54,12 @@ Creates and sends an 'UPDATE' query.
 `true` on success, `false` on failure
 
 ## MYDB::upsert
-Create and sends an 'INSERT INTO' query. On duplicate key sends an 'UPDATE' query.
+Create and sends an 'INSERT INTO' query. On duplicate key sends an 'UPDATE' query. 
 
 ### Params
 * string `$table` The table name
 * array `$data` Associative array. Keys are field names, Values are field values.
-* array `$where` WHERE clause. Items are joined with AND.
+* array `$where` WHERE clause. This became part of `$data` in the 'INSERT INTO' query, and a real WHERE clause in the 'UPDATE' query.
 
 ### Return
 Returns `false` on failure. For successful SELECT, SHOW, DESCRIBE or EXPLAIN queries will return a `mysqli_result` object. For other successful queries will return `true`. See also [http://php.net/manual/en/mysqli.query.php](http://php.net/manual/en/mysqli.query.php).
