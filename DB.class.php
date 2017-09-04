@@ -31,7 +31,7 @@ OTHER DEALINGS IN THE SOFTWARE.
  * * [PHP mysqli class](http://php.net/manual/en/class.mysqli.php)
  * * [MySQL](https://dev.mysql.com/)
  * 
- * @version 1.4.0
+ * @version 1.3.0
  * @license https://github.com/mastro-elfo/MYDB/blob/master/LICENSE
  * @author mastro-elfo
  * @copyright Copyright (c) 2017 mastro-elfo
@@ -155,7 +155,7 @@ class MYDB {
 	 * @since 1.0
 	 */
 	public function update($table, $data, $where = null) {
-		$this->query('UPDATE `'.$table.'` SET '.join(', ', array_map(function($key, $value){return '`'.$key.'`=\''.$value.'\'';}, array_keys($data), $data)).' '.($where?' WHERE '.join(' AND ', array_map(function($key, $value){return '`'.$key.'`=\''.$value.'\'';}, array_keys($where), $where)):''));
+		$this->query('UPDATE `'.$table.'` SET '.join(', ', array_map(function($key, $value){return '`'.$key.'`=\''.$this->db->real_escape_string($value).'\'';}, array_keys($data), $data)).' '.($where?' WHERE '.join(' AND ', array_map(function($key, $value){return '`'.$key.'`=\''.$value.'\'';}, array_keys($where), $where)):''));
 		return $this->db->affected_rows;
 	}
 	
